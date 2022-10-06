@@ -1,0 +1,267 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width,initial-scale=1,minimal-ui" name="viewport">
+    <link rel="shortcut icon" href="#">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic|Material+Icons">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+</head>
+<style>
+    [v-cloak] {
+        display: none;
+    }
+
+    .result>h4 {
+        margin-top: 35px;
+        margin-bottom: 35px;
+    }
+
+    .result>h4>span {
+        color: brown;
+    }
+
+    .responsive {
+        padding: 5px;
+        border: 1px solid #ebebeb;
+        height: 100%;
+        box-shadow: 5px 6px rgb(247, 240, 240);
+    }
+
+    .small {
+        margin-left: 2px;
+        margin-right: 2px;
+        margin-bottom: 2px;
+        padding-left: 2px;
+        padding-right: 2px;
+        min-height: 300px;
+    }
+
+    .large {
+        margin-left: 18px;
+        margin-right: 18px;
+        margin-bottom: 5px;
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .vertical {
+        position: relative;
+        top: 30%;
+    }
+</style>
+
+<body>
+    <v-app id="app" v-cloak>
+        <div :class="size">
+            <div :class="size">
+                <div :class="size">
+                    <div :class="size">
+                        <v-row class="size">
+                            <div class="col-md-12 banner text-center"
+                                style="background-image:url('https://classprojectdata.s3.amazonaws.com/banner.png'); background-size:cover; background-position:center; color: rgb(17, 17, 17); height: 300px; padding-top: 100px;">
+                                <h1>Heart Disease Prediction Test</h1>
+                                <h3>Estimation of 10 Year Cardiovascular Disease Risk</h3>
+                            </div>
+                        </v-row>
+                        <v-row class="size">
+                            <v-col cols="12" sm="3">
+                                <div class="responsive">
+                                    <form @submit="onSubmit" method="post">
+                                        <v-select :items="genderDD" label="Gender" v-model="input.gender"></v-select>
+                                        <v-select :items="ageDD" label="Age" v-model="input.age"></v-select>
+                                        <v-select :items="smokeDD" label="Smoke ?" v-model="input.smoke"></v-select>
+                                        <v-select :items="totalCholesterolDD" label="Total Cholesterol, mg/dL"
+                                            v-model="input.totalCholesterol"></v-select>
+                                        <v-select :items="hdlCholesterolDD" label="HDL Cholesterol, mg/dL"
+                                            v-model="input.hdlCholesterol"></v-select>
+                                        <v-select :items="systolicBloodPressureDD"
+                                            label="Systolic Blood Pressure, mm Hg"
+                                            v-model="input.systolicBloodPressure"></v-select>
+                                        <v-select :items="treatedDD" label="Systolic Blood Pressure - Treated ?"
+                                            v-model="input.treated"></v-select>
+                                        <v-btn block type="submit" color="#e2d3d3" class="mt-5">Get the Result</v-btn>
+                                    </form>
+                                </div>
+                            </v-col>
+                            <v-col cols="12" sm="4" style="min-height: 400px;">
+                                <div class="responsive" class="result">
+                                    <div :class="vertical" style="text-align: center">
+                                        <h2>Estimated 10-year CHD Risk</h2>
+                                        <h2>{{tenYearRisk}}</h2>
+                                    </div>
+                                    <div style="position:relative; top: 60%;" class="text-center">
+                                        <h3>Low Risk. 10% or Less<br />Intermediate Risk. 10% - 20% <br />High Risk. 20% or more </h3>
+                                    </div>
+                                </div>
+                            </v-col>
+                            <v-col cols="12" sm="5">
+                                <div class="responsive pr-4 pl-4">
+                                    <h2 class="mb-3 mt-1">Framingham Risk Score</h2>
+                                    <span v-html="risk"></span>
+                                </div>
+                            </v-col>
+                        </v-row>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </v-app>
+    <script src="https://unpkg.com/vue@2.6"></script>
+    <script src="https://unpkg.com/vue-router@3.4"></script>
+    <script src="https://unpkg.com/vuex@4.0.2"></script>
+    <script src="https://unpkg.com/vuetify@2.6.10"></script>
+    <script>
+        scoring = {
+            'Female': {
+                'age': { '20–34': -7, '35–39': -3, '40–44': 0, '45–49': 3, '50–54': 6, '55–59': 8, '60–64': 10, '65–69': 12, '70–74': 14, '75–79': 16 },
+                'smoke': { '20–34': 9, '35–39': 9, '40–44': 7, '45–49': 7, '50–54': 4, '55–59': 4, '60–64': 2, '65–69': 2, '70–74': 1, '75–79': 1 },
+                'totalCholesterol': {
+                    //age  : { ... totalCholesterol ... }
+                    '20–34': { '< 160': 0, '160-199': 4, '200-239': 8, '240-279': 11, '>= 280': 13 },
+                    '35–39': { '< 160': 0, '160-199': 4, '200-239': 8, '240-279': 11, '>= 280': 13 },
+                    '40–44': { '< 160': 0, '160-199': 3, '200-239': 6, '240-279': 8, '>= 280': 10 },
+                    '45–49': { '< 160': 0, '160-199': 3, '200-239': 6, '240-279': 8, '>= 280': 10 },
+                    '50–54': { '< 160': 0, '160-199': 2, '200-239': 4, '240-279': 5, '>= 280': 7 },
+                    '55–59': { '< 160': 0, '160-199': 2, '200-239': 4, '240-279': 5, '>= 280': 7 },
+                    '60–64': { '< 160': 0, '160-199': 1, '200-239': 2, '240-279': 3, '>= 280': 4 },
+                    '65–69': { '< 160': 0, '160-199': 1, '200-239': 2, '240-279': 3, '>= 280': 4 },
+                    '70–74': { '< 160': 0, '160-199': 1, '200-239': 1, '240-279': 2, '>= 280': 2 },
+                    '75–79': { '< 160': 0, '160-199': 1, '200-239': 1, '240-279': 2, '>= 280': 2 },
+                },
+                'hdlCholesterol': { '>= 60': -1, '50-59': 0, '40-49': 1, '< 40': 2 },
+                'systolicBloodPressure': { 'treated': { 'Yes': { '< 120': 0, '120-129': 3, '130-139': 4, '140-159': 5, '>= 160': 6 }, 'No': { '< 120': 0, '120-129': 1, '130-139': 2, '140-159': 3, '>= 160': 4 } } },
+                '10YearRisk': { '< 9': 'Less than 1%', '9-12': '1%', '13-14': '2%', '15': '3%', '16': '4%', '17': '5%', '18': '6%', '19': '8%', '20': '11%', '21': '14%', '22': '17%', '23': '22%', '24': '27%', '> 25': 'Over 30%' }
+            },
+            'Male': {
+                'age': { '20–34': -9, '35–39': -4, '40–44': 0, '45–49': 3, '50–54': 6, '55–59': 8, '60–64': 10, '65–69': 11, '70–74': 12, '75–79': 13 },
+                'smoke': { '20–34': 8, '35–39': 8, '40–44': 5, '45–49': 5, '50–54': 3, '55–59': 3, '60–64': 1, '65–69': 1, '70–74': 1, '75–79': 1 },
+                'totalCholesterol': {
+                    //age  : { ... totalCholesterol ... }
+                    '20–34': { '< 160': 0, '160-199': 4, '200-239': 7, '240-279': 9, '>= 280': 11 },
+                    '35–39': { '< 160': 0, '160-199': 4, '200-239': 7, '240-279': 9, '>= 280': 11 },
+                    '40–44': { '< 160': 0, '160-199': 3, '200-239': 5, '240-279': 6, '>= 280': 8 },
+                    '45–49': { '< 160': 0, '160-199': 3, '200-239': 5, '240-279': 6, '>= 280': 8 },
+                    '50–54': { '< 160': 0, '160-199': 2, '200-239': 3, '240-279': 4, '>= 280': 5 },
+                    '55–59': { '< 160': 0, '160-199': 2, '200-239': 3, '240-279': 4, '>= 280': 5 },
+                    '60–64': { '< 160': 0, '160-199': 1, '200-239': 1, '240-279': 2, '>= 280': 3 },
+                    '65–69': { '< 160': 0, '160-199': 1, '200-239': 1, '240-279': 2, '>= 280': 3 },
+                    '70–74': { '< 160': 0, '160-199': 0, '200-239': 0, '240-279': 1, '>= 280': 1 },
+                    '75–79': { '< 160': 0, '160-199': 0, '200-239': 0, '240-279': 1, '>= 280': 1 },
+                },
+                'hdlCholesterol': { '>= 60': -1, '50-59': 0, '40-49': 1, '< 40': 2 },
+                'systolicBloodPressure': { 'treated': { 'No': { '< 120': 0, '120-129': 0, '130-139': 1, '140-159': 1, '>= 160': 2 }, 'Yes': { '< 120': 0, '120-129': 1, '130-139': 2, '140-159': 2, '>= 160': 3 } } },
+                '10YearRisk': { '0': 'Less than 1%', '1-4': '1%', '5-6': '2%', '7': '3%', '8': '4%', '9': '5%', '10': '6%', '11': '8%', '12': '10%', '13': '12%', '14': '16%', '15': '20%', '16': '25%', '> 17': 'Over 30%' }
+            },
+        };
+        new Vue({
+            el: "#app",
+            vuetify: new Vuetify(),
+            data: () => ({
+                title: 'APP',
+                risk: `
+                    <p class="text-justify" >The Framingham Risk Score is a sex-specific
+                        algorithm used to estimate the 10-year cardiovascular risk of an individual.<br/>
+                        The updated version was modified to include dyslipidemia, age range, hypertension treatment, smoking, 
+                        and total cholesterol, and it excluded diabetes, because Type 2 diabetes meanwhile was considered to be a 
+                        CHD Risk Equivalent, having the same 10-year risk as individuals with prior CHD.<br/><br/>
+                        <h3>Guideline</h3>
+                        <b>HDL:</b> high-density lipoprotein, or “good” cholesterol <br />
+                        <b>Systolic blood pressure:</b> blood pressure is measured using two numbers: <br/>
+                        he first number, called <i>systolic blood pressure</i>, measures the pressure in your arteries when your heart beats.<br/>
+                        The second number, called <i>diastolic blood pressure</i>, measures the pressure in your arteries when your heart rests between beats.
+                    </p>
+                    <h3>Reference</h3>
+                    <a href="https://en.wikipedia.org/wiki/Framingham_Risk_Score">wikipedia.org/wiki/Framingham_Risk_Score</a>
+                `,
+                genderDD: ['Male', 'Female'],
+                ageDD: ['20–34', '35–39', '40–44', '45–49', '50–54', '55–59', '60–64', '65–69', '70–74', '75–79'],
+                smokeDD: ['No', 'Yes'],
+                totalCholesterolDD: ['< 160 ( Desirable )', '160-199 ( Desirable )', '200-239 ( Borderline high )', '240-279 ( High )', '>= 280 ( High )'],
+                totalCholesterolVV: {'< 160 ( Desirable )': '< 160', '160-199 ( Desirable )': '160-199', '200-239 ( Borderline high )': '200-239', '240-279 ( High )': '240-279', '>= 280 ( High )': '>= 280'},
+                hdlCholesterolDD: ['>= 60 ( High )', '50-59 ( Desirable )', '40-49 ( Desirable )', '< 40 ( Low )'],
+                hdlCholesterolVV: {'>= 60 ( High )': '>= 60', '50-59 ( Desirable )': '50-59', '40-49 ( Desirable )': '40-49', '< 40 ( Low )': '< 40'},
+                systolicBloodPressureDD: ['< 120 ( Normal )', '120-129 ( Elevated )', '130-139 ( Hypertension Stage 1 )', '140-159 ( Hypertension Stage 2 )', '>= 160 ( Hypertension Stage 2 )'],
+                systolicBloodPressureVV: {'< 120 ( Normal )': '< 120', '120-129 ( Elevated )': '120-129', '130-139 ( Hypertension Stage 1 )': '130-139', '140-159 ( Hypertension Stage 2 )': '140-159', '>= 160 ( Hypertension Stage 2 )': '>= 160'},
+                treatedDD: ['Yes', 'No'],
+                input: { gender: 'Female', age: '20–34', smoke: 'No', totalCholesterol: '200-239 ( Borderline high )', hdlCholesterol: '40-49 ( Desirable )', systolicBloodPressure: '130-139 ( Hypertension Stage 1 )', treated: 'Yes' },
+                ageScore: '',
+                smokeScore: '',
+                totalCholesterolScore: '',
+                hdlCholesterolScore: '',
+                systolicBloodPressureScore: '',
+                total: '',
+                tenYearRisk: ''
+            }),
+            computed: {
+                size() {
+                    switch (this.$vuetify.breakpoint.name) {
+                        case 'xs':
+                        case 'sm':
+                            return "small"
+                        case 'md':
+                        case 'lg':
+                        case 'xl':
+                            return "large"
+                    }
+                },
+                vertical() {
+                    switch (this.$vuetify.breakpoint.name) {
+                        case 'xs':
+                        case 'sm':
+                            return ""
+                        case 'md':
+                        case 'lg':
+                        case 'xl':
+                            return "vertical"
+                    }
+                },
+            },
+            created() { },
+            methods: {
+                onSubmit: function (e) {
+                    e.preventDefault();
+                    this.total = null;
+                    const { gender, age, smoke, totalCholesterol, hdlCholesterol, systolicBloodPressure, treated } = this.input; // console.log(gender, age, this.input);
+                    this.ageScore = scoring[gender]['age'][[age]];
+                    this.smokeScore = (smoke == 'No' ? 0 : scoring[gender]['smoke'][age]);
+                    this.totalCholesterolScore = scoring[gender]['totalCholesterol'][age][this.totalCholesterolVV[totalCholesterol]];
+                    this.hdlCholesterolScore = scoring[gender]['hdlCholesterol'][this.hdlCholesterolVV[hdlCholesterol]];
+                    this.systolicBloodPressureScore = scoring[gender]['systolicBloodPressure']['treated'][treated][this.systolicBloodPressureVV[systolicBloodPressure]];
+                    this.total = this.ageScore + this.smokeScore + this.totalCholesterolScore + this.hdlCholesterolScore + this.systolicBloodPressureScore;
+                    const t = this.total;
+                    let x = null;
+                    if (gender == 'Female') {
+                        if (t < 9) x = '< 9';
+                        else if (t >= 9 && t <= 12) x = '9-12';
+                        else if (t >= 13 && t <= 14) x = '13-14';
+                        else if (t >= 25) x = '> 25';
+                        else x = t;
+                    } else {
+                        if (t >= 1 && t <= 4) x = '1-4';
+                        else if (t >= 5 && t <= 6) x = '5-6';
+                        else if (t >= 17) x = '> 17';
+                        else x = t;
+                    }
+                    if (t == null || x == null) {
+                        this.tenYearRisk = 'NO RESULT';
+                    } else {
+                        this.tenYearRisk = scoring[gender]['10YearRisk'][x];
+                    }
+                    console.log('----- ageScore ----', this.ageScore);
+                    console.log('----- smokeScore  ----', this.smokeScore);
+                    console.log('----- totalCholesterolScore  ----', this.totalCholesterolScore);
+                    console.log('----- hdlCholesterolScore  ----', this.hdlCholesterolScore);
+                    console.log('----- systolicBloodPressureScore  ----', this.systolicBloodPressureScore);
+                    console.log('____ total _____', this.total)
+                    console.log('____ 10 Year Risk _____', scoring[gender]['10YearRisk'][x]);
+                }
+            },
+        });
+    </script>
+</body>
+
+</html>
