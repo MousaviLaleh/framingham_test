@@ -16,7 +16,7 @@ risk for CHD as those with previously diagnosed coronary disease or Type 2 diabe
 Framingham app will make complex calculations based on your entered data (age, sex, smoking status, treatment for hypertension, total cholesterol, 
 HDL cholesterol and systolic blood pressure) and will give you the result. 
 <br/>
-Click on image below to visit the app.
+<b>Click on image below to visit the app.</b>
 <br/>
 
 <a href="https://mousavilaleh.github.io/framingham_test/">
