@@ -12,7 +12,9 @@ Patients with Type 1 diabetes were considered separately with slightly less aggr
 risk for CHD as those with previously diagnosed coronary disease or Type 2 diabetes.
 
 [Read more about this test...](https://en.wikipedia.org/wiki/Framingham_Risk_Score) 
+
 <br/>
+
 Framingham app will make complex calculations based on your entered data (age, sex, smoking status, treatment for hypertension, total cholesterol, 
 HDL cholesterol and systolic blood pressure) and will give you the result. 
 <br/>
