@@ -19,5 +19,5 @@ Click on image below to visit the app.
 <br/>
 
 <a href="https://mousavilaleh.github.io/framingham_test/">
-    <img src="https://drive.google.com/file/d/13mOQ3khd9IwLjU3Hb3L5x79jqnmGQH27/view?usp=sharing" />
+    <img src="https://drive.google.com/uc?export=view&id=13mOQ3khd9IwLjU3Hb3L5x79jqnmGQH27" />
 </a>
