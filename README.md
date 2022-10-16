@@ -18,5 +18,6 @@ HDL cholesterol and systolic blood pressure) and will give you the result. <br/>
 Click on image below to visit the app.
 <br/>
 
-<img src="" />
-![app](https://user-images.githubusercontent.com/56373752/196061487-339f41b1-2e38-44eb-9f12-febfd1ac6278.png)
+<a href="https://mousavilaleh.github.io/framingham_test/">
+    <img src="https://drive.google.com/file/d/13mOQ3khd9IwLjU3Hb3L5x79jqnmGQH27/view?usp=sharing" />
+</a>
